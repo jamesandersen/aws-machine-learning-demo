@@ -5,4 +5,5 @@
 * *No Model Export* - You can't export the model e.g. if you wanted to simply use a trained model outside of the ML service you can’t…
 * *Not Cloud Formation Enabled* - If you wanted to incorporate an AWS ML into a cloud formation script... unfortunately this doesn't aNot yet CF enabled
 Can’t modify the data transformation “recipe” of an existing datasource? (at least with the console?)
-Recipe validator is a little “rough”
+* *Recipe validator is a little “rough”*
+![Custom Recipe Validation Errors](images/model-recipe-validation.png)
