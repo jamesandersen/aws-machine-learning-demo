@@ -17,4 +17,4 @@ AWS machine learning data sources are comma-separated (.csv) data files stored i
 Once you’ve stepped through the Datasource creation wizard, the datasource will be in a pending status for a period of time while AWS generates some useful descriptive statistics.  For example the distribution of your target attribute, the correlation of all other attributes to your target attribute, whether there are missing values which may interfere with the quality of your machine learning model. 
 
 ![Target Attribute Distribution](images/datasource-target-distribution.png)
-![Attribute Statistics](images/datasource-target-distribution.png)
+![Attribute Statistics](images/datasource-attributes.png)
