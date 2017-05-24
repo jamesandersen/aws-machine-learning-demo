@@ -19,4 +19,4 @@ A close look at the data can also give us some ideas on additional features that
 * **Age of Earliest Credit Line** - `earliest_cr_line` is a date variable in the format `MMM-YYYY` but it might be more useful to present the **number of days** since a credit line was first opened by transforming that value to an numeric count of days since the date
 * **Loan to Income** - While we have both the loan amount and borrowers income in the data we don't have a ratio presenting the loan amount as a percentage of annual income
 
-See (lending_club_clean.py) for details on all the cleaning and feature engineering performed on the raw dataset.
+See [lending_club_clean.py](lending_club_clean.py) for details on all the cleaning and feature engineering performed on the raw dataset.
