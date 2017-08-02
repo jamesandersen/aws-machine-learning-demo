@@ -94,6 +94,7 @@ def main():
         "bc_open_to_buy",  # Total open to buy on revolving bankcards.
         "percent_bc_gt_75", # Percentage of all bankcard accounts > 75% of limit.
         "total_bal_il", # Total current balance of all installment accounts
+        "total_il_high_credit_limit", # Total installment high credit/credit limit
         "total_cu_tl" # Number of finance trades
     ]
 
@@ -129,6 +130,8 @@ def main():
     # Ratio of total current balance to high credit/credit limit on all install acct
     print_null_check(data, "total_bal_il")
     print_null_check(data, "total_il_high_credit_limit")
+    # avoid introducing NaN via divide by zero
+    data["total_il_high_credit_limit"]=data["total_il_high_credit_limit"].replace(0, data["total_il_high_credit_limit"].mean())
     data["il_util"] = data["il_util"].fillna(data["total_bal_il"] / data["total_il_high_credit_limit"] * 100)
     print_null_check(data, "il_util")
 
@@ -136,10 +139,14 @@ def main():
     # borrower is using relative to all available revolving credit.
     print_null_check(data, "revol_bal")
     print_null_check(data, "total_rev_hi_lim")
+    # avoid introducing NaN via divide by zero
+    data["total_rev_hi_lim"]=data["total_rev_hi_lim"].replace(0,data["total_rev_hi_lim"].mean())
     data["revol_util"] = data["revol_util"].fillna(data["revol_bal"] / data["total_rev_hi_lim"] * 100)
     print_null_check(data, "revol_util")
 
     # Balance to credit limit on all trades
+    # avoid introducing NaN via divide by zero
+    data["tot_hi_cred_lim"]=data["tot_hi_cred_lim"].replace(0,data["tot_hi_cred_lim"].mean())
     data["all_util"] = data["all_util"].fillna(data["tot_cur_bal"] / data["tot_hi_cred_lim"] * 100)
     print_null_check(data, "all_util")
 
