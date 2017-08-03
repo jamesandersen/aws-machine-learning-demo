@@ -2,13 +2,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: CloudFormation template for running Jupyter Notebook on EC2 Spot Instances.
 Mappings:
-  CidrMappings:
-    public-subnet-1:
-      CIDR: 10.0.1.0/24
-    public-subnet-2:
-      CIDR: 10.0.2.0/24
-    vpc:
-      CIDR: 10.0.0.0/16
   DeepLearningAmi:  # June 2017
     ap-northeast-1:
       AMI: ami-b44050d3
@@ -69,7 +62,7 @@ Resources:
   DeepLearningVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 172.23.0.0/12
+      CidrBlock: 172.23.0.0/16
       EnableDnsHostnames: true
       EnableDnsSupport: true
       Tags:
@@ -178,7 +171,7 @@ Resources:
   SpotFleetInstanceProfile:
     Properties:
       Path: /
-      Roles: !Ref SpotInstanceRole
+      Roles: [!Ref SpotInstanceRole]
     Type: AWS::IAM::InstanceProfile
   SpotFleet:
     Type: AWS::EC2::SpotFleet
@@ -189,7 +182,6 @@ Resources:
         SpotPrice: !Ref SpotBidPrice
         TargetCapacity: 1
         TerminateInstancesWithExpiration: true
-        Type: request # one-time request
         LaunchSpecifications:
         - IamInstanceProfile:
             Arn: !GetAtt SpotFleetInstanceProfile.Arn
@@ -216,44 +208,70 @@ Resources:
                 pip install awscli
 
                 aws configure set default.region ${AWS::Region}
+
                 logger "AWS CLI installed and configured"
 
                 cat <<EOF > /tmp/awslogs.conf
+
                 [general]
+
                 state_file = /var/awslogs/state/agent-state
 
                 [/var/log/dmesg]
+
                 file = /var/log/dmesg
+
                 log_group_name = ${DeepLearningLogsGroup}
+
                 log_stream_name = {instance_id}/var/log/dmesg
 
                 [/var/log/messages]
+
                 file = /var/log/messages
+
                 log_group_name = ${DeepLearningLogsGroup}
+
                 log_stream_name = {instance_id}/var/log/messages
+
                 datetime_format = %b %d %H:%M:%S
 
+
                 [/tmp/runscript.log]
+
                 file = /tmp/runscript.log
+
                 log_group_name = ${DeepLearningLogsGroup}
+
                 log_stream_name = {instance_id}/tmp/runscript.log
-                
+
                 EOF
 
                 # Install CloudWatch agent
+
                 cd /tmp && curl -sO https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
+
                 python /tmp/awslogs-agent-setup.py -n -r ${AWS::Region} -c /tmp/awslogs.conf
 
                 cat <<EOF > /etc/init/cloudwatch-logs-start.conf
+
                 description "Configure and start CloudWatch Logs agent on Deep Learning instance"
+
                 author "Amazon Web Services"
+
                 start on started network
+
                 script
+
                 exec 2>>/var/log/cloudwatch-logs-start.log
+
                 set -x
+
                 chkconfig awslogs on
+
                 service awslogs start
+
                 end script
+
                 EOF
 
                 logger "AWS CloudWatch Log Agent installed and configured"
@@ -261,11 +279,13 @@ Resources:
                 git clone --depth 1 --branch ${GitBranch} ${GitRepo} /tmp/repo
 
                 logger "Git Repo cloned"
+
                 cd /tmp/repo
 
                 sudo -u ec2-user ${RunScript} > /tmp/runscript.log 2>&1
 
                 logger "Script run complete"
+
                 '
 Outputs:
   AwsRegionName:
