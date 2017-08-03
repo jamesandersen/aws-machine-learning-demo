@@ -54,10 +54,15 @@ Parameters:
     Type: String
     Default: keras-deeplearning/train_model.sh
     Description: path to script to start deep learning workload - relative to Git repo root
+  OutputBucket:
+    Type: String
+    Default: um-aws-machine-learning-demo
+    Description: The bucket where training output will be saved
 Resources:
   DeepLearningLogsGroup:
     Type: AWS::Logs::LogGroup
     Properties:
+      LogGroupName: DeepLearningSpotInstance
       RetentionInDays: 7
   DeepLearningVPC:
     Type: AWS::EC2::VPC
@@ -152,7 +157,20 @@ Resources:
             Effect: Allow
             Resource: !GetAtt DeepLearningLogsGroup.Arn
           Version: 2012-10-17
-        PolicyName: cloudWatchLogsPolicy
+        PolicyName: CloudWatchLogsPolicy
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - s3:ListBucket
+            Effect: Allow
+            Resource: !Sub "arn:aws:s3:::${OutputBucket}"
+          - Action:
+            - s3:PutObject
+            - s3:GetObject
+            Effect: Allow
+            Resource: !Sub "arn:aws:s3:::${OutputBucket}/*"
+          Version: 2012-10-17
+        PolicyName: DeepLearningS3AccessPolicy
   SpotFleetRole:
     Type: AWS::IAM::Role
     Properties:
@@ -284,7 +302,7 @@ Resources:
 
                 sudo -u ec2-user ${RunScript} > /tmp/runscript.log 2>&1
 
-                logger "Script run complete"
+                logger "Script run complete for stack ${AWS::StackName} (${AWS::StackId})"
 
                 '
 Outputs:
