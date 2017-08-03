@@ -1,0 +1,279 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: CloudFormation template for running Jupyter Notebook on EC2 Spot Instances.
+Mappings:
+  CidrMappings:
+    public-subnet-1:
+      CIDR: 10.0.1.0/24
+    public-subnet-2:
+      CIDR: 10.0.2.0/24
+    vpc:
+      CIDR: 10.0.0.0/16
+  DeepLearningAmi:  # June 2017
+    ap-northeast-1:
+      AMI: ami-b44050d3
+    ap-northeast-2:
+      AMI: ami-1523fc7b
+    ap-southeast-2:
+      AMI: ami-52332031
+    eu-west-1:
+      AMI: ami-d36386aa
+    us-east-1:
+      AMI: ami-4b44745d
+    us-east-2:
+      AMI: ami-305d7c55
+    us-west-2:
+      AMI: ami-296e7850
+Metadata:
+  Authors:
+    Description: James Andersen (james.andersen@universalmind.com)
+Parameters:
+  InstanceType:
+    AllowedValues:
+    - t2.micro
+    - t2.small
+    - t2.medium
+    - p2.xlarge
+    - p2.16xlarge
+    Default: p2.xlarge
+    Description: EC2 instance type to use for Jupyter Notebook
+    Type: String
+  KeyPairName:
+    Description: Name of an existing EC2 KeyPair used for SSH access
+    Type: AWS::EC2::KeyPair::KeyName
+  SourceCidr:
+    Default: 0.0.0.0/0
+    Description: Optional - CIDR/IP range for instance ssh access - defaults to 0.0.0.0/0
+    Type: String
+  SpotBidPrice:
+    Default: 0.75
+    Description: Spot Instance bid price
+    Type: String
+  GitRepo:
+    Type: String
+    Default: https://github.com/jamesandersen/aws-machine-learning-demo.git
+    Description: URL of Git repo to clone with Jupyter notebook
+  GitBranch:
+    Type: String
+    Default: aws-keras-deeplearning
+    Description: Branch of Git repo to clone with Jupyter notebook
+  RunScript:
+    Type: String
+    Default: keras-deeplearning/train_model.sh
+    Description: path to script to start deep learning workload - relative to Git repo root
+Resources:
+  DeepLearningLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      RetentionInDays: 7
+  DeepLearningVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 172.16.0.0/12
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+      - Key: Name
+        Value: Spot Deep Learning VPC
+  InternetGateway:
+    DependsOn: DeepLearningVPC
+    Type: AWS::EC2::InternetGateway
+  AttachGateway:
+    DependsOn:
+    - DeepLearningVPC
+    - InternetGateway
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref DeepLearningVPC
+    Type: AWS::EC2::VPCGatewayAttachment
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: AttachGateway
+    Properties:
+      Tags:
+      - Key: Name
+        Value: Public Route Table
+      VpcId: !Ref DeepLearningVPC
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnet:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachGateway
+    Properties:
+      AvailabilityZone:
+        Fn::Select:
+        - 0
+        - Fn::GetAZs: !Ref AWS::Region
+      CidrBlock: 172.16.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+      - Key: Name
+        Value: Deep Learning Subnet
+      VpcId: !Ref DeepLearningVPC
+  SubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet
+  DeepLearningSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Jupyter Spot Instance Security Group
+      SecurityGroupIngress:
+      - CidrIp: !Ref SourceCidr
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      VpcId: !Ref DeepLearningVPC
+  SpotInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+        Version: 2012-10-17
+      Path: /
+      Policies:
+      - PolicyDocument:
+          Statement:
+          - Action: cloudformation:DeleteStack
+            Effect: Allow
+            Resource: !Ref AWS::StackId
+          Version: 2012-10-17
+        PolicyName: DeleteDeepLearningStack
+      - PolicyDocument:
+          Statement:
+          - Action:
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - logs:DescribeLogStreams
+            Effect: Allow
+            Resource: !GetAtt DeepLearningLogsGroup.Arn
+          Version: 2012-10-17
+        PolicyName: cloudWatchLogsPolicy
+  SpotFleetRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action:
+          - sts:AssumeRole
+          Effect: Allow
+          Principal:
+            Service:
+            - spotfleet.amazonaws.com
+        Version: 2012-10-17
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AmazonEC2SpotFleetRole
+      Path: /
+  SpotFleetInstanceProfile:
+    Properties:
+      Path: /
+      Roles: !Ref SpotInstanceRole
+    Type: AWS::IAM::InstanceProfile
+  SpotFleet:
+    Type: AWS::EC2::SpotFleet
+    Properties:
+      SpotFleetRequestConfigData:
+        AllocationStrategy: lowestPrice
+        IamFleetRole: !GetAtt SpotFleetRole.Arn
+        SpotPrice: !Ref SpotBidPrice
+        TargetCapacity: 1
+        TerminateInstancesWithExpiration: true
+        Type: request # one-time request
+        LaunchSpecifications:
+        - IamInstanceProfile:
+            Arn: !GetAtt SpotFleetInstanceProfile.Arn
+          ImageId: !FindInMap [DeepLearningAmi, !Ref "AWS::Region", AMI]
+          InstanceType: !Ref InstanceType
+          KeyName: !Ref KeyPairName
+          Monitoring:
+            Enabled: true
+          SecurityGroups:
+          - GroupId: !Ref DeepLearningSecurityGroup
+          SubnetId: !Ref PublicSubnet
+          UserData:
+            Fn::Base64:
+              Fn::Sub: '#!/bin/bash -xe
+
+                export PATH=/usr/local/bin:$PATH
+
+                yum -y --security update
+
+                yum -y install jq
+
+                easy_install pip
+
+                pip install awscli
+
+                aws configure set default.region ${AWS::Region}
+                logger "AWS CLI installed and configured"
+
+                cat <<EOF > /tmp/awslogs.conf
+                [general]
+                state_file = /var/awslogs/state/agent-state
+
+                [/var/log/dmesg]
+                file = /var/log/dmesg
+                log_group_name = ${DeepLearningLogsGroup}
+                log_stream_name = {instance_id}/var/log/dmesg
+
+                [/var/log/messages]
+                file = /var/log/messages
+                log_group_name = ${DeepLearningLogsGroup}
+                log_stream_name = {instance_id}/var/log/messages
+                datetime_format = %b %d %H:%M:%S
+
+                [/tmp/runscript.log]
+                file = /tmp/runscript.log
+                log_group_name = ${DeepLearningLogsGroup}
+                log_stream_name = {instance_id}/tmp/runscript.log
+                
+                EOF
+
+                # Install CloudWatch agent
+                cd /tmp && curl -sO https://s3.amazonaws.com/aws-cloudwatch/downloads/latest/awslogs-agent-setup.py
+                python /tmp/awslogs-agent-setup.py -n -r ${AWS::Region} -c /tmp/awslogs.conf
+
+                cat <<EOF > /etc/init/cloudwatch-logs-start.conf
+                description "Configure and start CloudWatch Logs agent on Deep Learning instance"
+                author "Amazon Web Services"
+                start on started network
+                script
+                exec 2>>/var/log/cloudwatch-logs-start.log
+                set -x
+                chkconfig awslogs on
+                service awslogs start
+                end script
+                EOF
+
+                logger "AWS CloudWatch Log Agent installed and configured"
+
+                git clone --depth 1 --branch ${GitBranch} ${GitRepo} /tmp/repo
+
+                logger "Git Repo cloned"
+                cd /tmp/repo
+
+                sudo -u ec2-user ${RunScript} > /tmp/runscript.log 2>&1
+
+                logger "Script run complete"
+                '
+Outputs:
+  AwsRegionName:
+    Description: The name of the AWS Region your template was launched in
+    Value: !Ref AWS::Region
+  DeepLearningLogGroup:
+    Description: The Deep Learning Log Group
+    Value: !Ref DeepLearningLogsGroup
+  SpotFleetRequestId:
+    Description: The Spot fleet Request Id
+    Value: !Ref SpotFleet

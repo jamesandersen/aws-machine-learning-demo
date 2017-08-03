@@ -1,4 +1,4 @@
-Build a Deep Learning AMI-like environment:
+Build docker image that simulates the AWS Deep Learning AMI:
 ```
 docker build -t jander/keras-full:local .
 ```
@@ -8,7 +8,6 @@ Run keras and jupyter via docker and data and notebook directories:
 ```
 docker run -d -p=6006:6006 -p 8888:8888 \
     -v `pwd`/:/srv \
-    -v `pwd`/../data/:/tmp/lcdata \
     -e "sample=50000" \
     jander/keras-full:local
                 

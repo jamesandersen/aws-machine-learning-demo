@@ -1,7 +1,7 @@
 """
 Cleanup some missing data and convert other columns for lending club data
 """
-
+import sys
 import datetime
 import pandas as pd
 
@@ -174,7 +174,13 @@ def main():
         print_null_check(data, col)
         print(data[col].describe())
 
-    data.to_csv("lc-2015-loans-{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%dT%H-%M")), index=False)
+    dest = "lc-2015-loans-{}.csv".format(datetime.datetime.now().strftime("%Y-%m-%dT%H-%M"))
+
+    # Support optional destination supplied on command line
+    if len(sys.argv) > 1:
+        dest = sys.argv[1]
+
+    data.to_csv(dest, index=False)
 
 if __name__ == '__main__':
     main()
