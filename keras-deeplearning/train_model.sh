@@ -3,6 +3,12 @@
 # Change working directory to script directory
 cd "${0%/*}"
 
+# Update Keras
+pip3 install keras --upgrade --no-deps
+
+# Check Keras Backou
+python3 -c "import keras; print(keras.backend.backend())"
+
 # extract data
 unzip -o ../LoanStats3d_securev1.csv.zip -d .
 
