@@ -7,11 +7,11 @@ cd "${0%/*}"
 unzip -o ../LoanStats3d_securev1.csv.zip -d .
 
 # clean data
-python ../lending_club_clean.py `pwd`/lc-2015-loans.csv
+python3 ../lending_club_clean.py `pwd`/lc-2015-loans.csv
 rm LoanStats3d_securev1.csv
 
 # train and save model
-python train_model.py
+python3 train_model.py
 
 # Send trained model to S3
 DATE=`date -u +%FT%H_%M`
