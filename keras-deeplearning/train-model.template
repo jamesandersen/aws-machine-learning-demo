@@ -151,6 +151,7 @@ Resources:
       - PolicyDocument:
           Statement:
           - Action:
+            - logs:CreateLogGroup
             - logs:CreateLogStream
             - logs:PutLogEvents
             - logs:DescribeLogStreams
@@ -300,7 +301,9 @@ Resources:
 
                 cd /tmp/repo
 
-                sudo -u ec2-user ${RunScript} > /tmp/runscript.log 2>&1
+                # Using /bin/bash is important here as the target script sets its own CWD
+
+                /bin/bash ${RunScript} > /tmp/runscript.log 2>&1
 
                 logger "Script run complete for stack ${AWS::StackName} (${AWS::StackId})"
 

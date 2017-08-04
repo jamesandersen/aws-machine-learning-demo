@@ -66,7 +66,7 @@ def main():
     """
     Read in raw CSV and output sanitized version
     """
-    #data = pd.read_csv("loan-stats-2015_partial.csv", low_memory=False)
+    print("Opening loan-stats-2015_partial.csv...")
     data = pd.read_csv("LoanStats3d_securev1.csv", low_memory=False)
 
     # Missing values for these columns seem most appropriate to fill with zero
