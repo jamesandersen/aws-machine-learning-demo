@@ -82,7 +82,7 @@ class LendingClubModelHelper:
         return self.model.fit(self.x_train.as_matrix(),
                         self.y_train.as_matrix(),
                         validation_split=0.2,
-                        nb_epoch=38 if not self.x_train.shape[0] == self.lcdata.shape[0] else 20, # Model converges much faster on larger data set 
+                        epochs=38 if not self.x_train.shape[0] == self.lcdata.shape[0] else 20, # Model converges much faster on larger data set 
                         batch_size=32,
                         verbose=2)
 

@@ -244,6 +244,7 @@ Resources:
 
                 log_stream_name = {instance_id}/var/log/dmesg
 
+
                 [/var/log/messages]
 
                 file = /var/log/messages
@@ -254,14 +255,6 @@ Resources:
 
                 datetime_format = %b %d %H:%M:%S
 
-
-                [/tmp/runscript.log]
-
-                file = /tmp/runscript.log
-
-                log_group_name = ${DeepLearningLogsGroup}
-
-                log_stream_name = {instance_id}/tmp/runscript.log
 
                 EOF
 
@@ -303,7 +296,7 @@ Resources:
 
                 # Using /bin/bash is important here as the target script sets its own CWD
 
-                /bin/bash ${RunScript} > /tmp/runscript.log 2>&1
+                /bin/bash ${RunScript} 2>&1 | logger
 
                 logger "Script run complete for stack ${AWS::StackName} (${AWS::StackId})"
 
