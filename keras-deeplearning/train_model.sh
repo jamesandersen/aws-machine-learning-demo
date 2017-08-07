@@ -1,13 +1,17 @@
 #!/bin/bash -xe
 
-# Change working directory to script directory
+# load environment as though interactive login
+source /etc/profile
+
+# Change working directory to repo
 cd "${0%/*}"
 
 # Update Keras
 pip3 install keras --upgrade --no-deps
 
-# Check Keras Backou
+# Check Keras Backend
 python3 -c "import keras; print(keras.backend.backend())"
+logger "Keras appears to be working!"
 
 # extract data
 unzip -o ../LoanStats3d_securev1.csv.zip -d .

@@ -3,7 +3,7 @@
 aws cloudformation validate-template --template-body file://train-model.template
 
 #: <<'END'
-aws cloudformation create-stack --stack-name deep-learning-spot-instance --template-body file://train-model.template \
+aws cloudformation create-stack --stack-name deep-learning-spot --template-body file://train-model.template \
     --parameters ParameterKey=InstanceType,ParameterValue=p2.xlarge \
         ParameterKey=SpotBidPrice,ParameterValue=0.75 \
         ParameterKey=KeyPairName,ParameterValue=UMOregon \

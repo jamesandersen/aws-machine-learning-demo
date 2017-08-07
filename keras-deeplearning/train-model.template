@@ -288,6 +288,22 @@ Resources:
 
                 logger "AWS CloudWatch Log Agent installed and configured"
 
+                cat <<EOF > /etc/init/deep-learning-workload.conf
+
+                description "Begin deep learning workload"
+
+                author "James Andersen (james.andersen@universalmind.com)"
+
+                start on stopped cloud-run-user-script
+
+                pre-start script
+
+                logger "Starting deep learning workload..."
+
+                end script
+
+                script
+
                 git clone --depth 1 --branch ${GitBranch} ${GitRepo} /tmp/repo
 
                 logger "Git Repo cloned"
@@ -296,9 +312,21 @@ Resources:
 
                 # Using /bin/bash is important here as the target script sets its own CWD
 
-                /bin/bash ${RunScript} 2>&1 | logger
+                #/bin/bash ${RunScript} 2>&1 | logger
+
+                exec su -ls /bin/sh -c 'exec "$0" "$@" 2>&1 | logger' ec2-user -- /bin/bash /tmp/repo/${RunScript}
+
+                end script
+
+                post-stop script
 
                 logger "Script run complete for stack ${AWS::StackName} (${AWS::StackId})"
+
+                end script
+
+                EOF
+
+                logger "Deep learning workload config file created"
 
                 '
 Outputs:
