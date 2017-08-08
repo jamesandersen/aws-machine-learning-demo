@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: CloudFormation template for running Jupyter Notebook on EC2 Spot Instances.
+Description: CloudFormation template for running Machine Learing workloads on EC2 Spot Instances.
 Mappings:
   DeepLearningAmi:  # June 2017
     ap-northeast-1:
@@ -29,7 +29,7 @@ Parameters:
     - p2.xlarge
     - p2.16xlarge
     Default: p2.xlarge
-    Description: EC2 instance type to use for Jupyter Notebook
+    Description: EC2 instance type to use for your workload
     Type: String
   KeyPairName:
     Description: Name of an existing EC2 KeyPair used for SSH access
@@ -45,15 +45,15 @@ Parameters:
   GitRepo:
     Type: String
     Default: https://github.com/jamesandersen/aws-machine-learning-demo.git
-    Description: URL of Git repo to clone with Jupyter notebook
+    Description: URL of Git repo to clone
   GitBranch:
     Type: String
     Default: aws-keras-deeplearning
-    Description: Branch of Git repo to clone with Jupyter notebook
+    Description: Branch of Git repo to clone
   RunScript:
     Type: String
     Default: keras-deeplearning/train_model.sh
-    Description: path to script to start deep learning workload - relative to Git repo root
+    Description: path to bash script to start deep learning workload - relative to Git repo root
   OutputBucket:
     Type: String
     Default: um-aws-machine-learning-demo
@@ -290,11 +290,17 @@ Resources:
 
                 cd /tmp/repo
 
-                source /tmp/repo/${RunScript}
+                # Use /bin/bash instead of source so the script can use relative paths to its repo location
+                /bin/bash /tmp/repo/${RunScript}
+
+                logger "Beginning deletion of CloudFormation Stack ${AWS::StackId}"
+                aws cloudformation delete-stack --stack-name ${AWS::StackId} --region ${AWS::Region}
 
                 EOF
 
+                # we're now going to hand off to ec2-user, so allow access to certain files
                 chown ec2-user /home/ec2-user/workload.sh
+                chmod 666 /tmp/workload.log 
                 chmod u+x /home/ec2-user/workload.sh
 
                 exec su -ls /bin/sh -c 'exec "$0" "$@" 2>&1 | tee /tmp/workload.log | logger' ec2-user -- /bin/bash /home/ec2-user/workload.sh
