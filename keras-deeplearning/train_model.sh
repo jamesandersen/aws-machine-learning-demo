@@ -1,13 +1,13 @@
 #!/bin/bash -xe
 
 # load environment as though interactive login
-source /etc/profile.d/aml_ami.sh
+#source /etc/profile.d/aml_ami.sh
 
 # Change working directory to repo
 cd "${0%/*}"
 
 # Update Keras
-sudo pip3 install keras --upgrade --no-deps
+#sudo pip3 install keras --upgrade --no-deps
 
 # Check Keras Backend
 python3 -c "import keras; print(keras.backend.backend())"

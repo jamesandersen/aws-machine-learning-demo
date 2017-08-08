@@ -220,42 +220,34 @@ Resources:
                 export PATH=/usr/local/bin:$PATH
 
                 yum -y --security update
-
                 yum -y install jq
-
                 easy_install pip
-
                 pip install awscli
-
                 aws configure set default.region ${AWS::Region}
+                echo "AWS CLI installed and configured" | tee /tmp/workload.log | logger
 
-                logger "AWS CLI installed and configured"
+                pip3 install keras --upgrade --no-deps
+                echo "Keras updated" | tee /tmp/workload.log | logger
 
                 cat <<EOF > /tmp/awslogs.conf
 
                 [general]
-
                 state_file = /var/awslogs/state/agent-state
-
                 [/var/log/dmesg]
-
                 file = /var/log/dmesg
-
                 log_group_name = ${DeepLearningLogsGroup}
-
                 log_stream_name = {instance_id}/var/log/dmesg
 
-
                 [/var/log/messages]
-
                 file = /var/log/messages
-
                 log_group_name = ${DeepLearningLogsGroup}
-
                 log_stream_name = {instance_id}/var/log/messages
-
                 datetime_format = %b %d %H:%M:%S
 
+                [/tmp/workload.log]
+                file = /tmp/workload.log
+                log_group_name = ${DeepLearningLogsGroup}
+                log_stream_name = {instance_id}/tmp/workload.log
 
                 EOF
 
@@ -268,7 +260,6 @@ Resources:
                 cat <<EOF > /etc/init/cloudwatch-logs-start.conf
 
                 description "Configure and start CloudWatch Logs agent on Deep Learning instance"
-
                 author "Amazon Web Services"
 
                 start on started network
@@ -276,30 +267,37 @@ Resources:
                 script
 
                 exec 2>>/var/log/cloudwatch-logs-start.log
-
                 set -x
-
                 chkconfig awslogs on
-
                 service awslogs start
 
                 end script
 
                 EOF
 
-                logger "AWS CloudWatch Log Agent installed and configured"
+                echo "AWS CloudWatch Log Agent installed and configured" | tee /tmp/workload.log | logger
+
+                cat <<EOF > /home/ec2-user/workload.sh
+
+                #!/bin/bash -xe
+
+                # load environment as though interactive login
+                source /etc/profile.d/aml_ami.sh
+                printenv | tee /tmp/workload.log | logger
 
                 git clone --depth 1 --branch ${GitBranch} ${GitRepo} /tmp/repo
-
-                sudo chown -R ec2-user /tmp/repo
-
-                logger "Git Repo cloned"
+                echo "Git Repo cloned" | tee /tmp/workload.log | logger
 
                 cd /tmp/repo
 
-                # Using /bin/bash is important here as the target script sets its own CWD
+                source /tmp/repo/${RunScript}
 
-                exec su -ls /bin/sh -c 'exec "$0" "$@" 2>&1 | logger' ec2-user -- /bin/bash /tmp/repo/${RunScript}
+                EOF
+
+                chown ec2-user /home/ec2-user/workload.sh
+                chmod u+x /home/ec2-user/workload.sh
+
+                exec su -ls /bin/sh -c 'exec "$0" "$@" 2>&1 | tee /tmp/workload.log | logger' ec2-user -- /bin/bash /home/ec2-user/workload.sh
 
 Outputs:
   AwsRegionName:
