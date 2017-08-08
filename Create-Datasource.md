@@ -13,6 +13,7 @@ AWS machine learning data sources are comma-separated (.csv) data files stored i
 4. A **target attribute** that you'll be training a machine learning model to predict.  You *can* use the same data file for multiple AWS ML data sources but each datasource is configured for only a single *target attribute*.  In this walkthrough we use the same .csv file to create two datasources:
    * One identifies the interest rate, a *numeric* variable, as the target attribute and will be used in the prediction of interest rate
    * The other identifies the loan grade, a *categorical* attribute, as the target attribute and will be used to predict which of the seven possible loan grades is most appropriate.
+   ![Target Selection](images/target-selection.png)
 
 Once you’ve stepped through the Datasource creation wizard, the datasource will be in a pending status for a period of time while AWS generates some useful descriptive statistics.  For example the distribution of your target attribute, the correlation of all other attributes to your target attribute, whether there are missing values which may interfere with the quality of your machine learning model. 
 
