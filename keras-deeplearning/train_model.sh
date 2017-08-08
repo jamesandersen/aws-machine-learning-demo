@@ -1,7 +1,7 @@
 #!/bin/bash -xe
 
 # load environment as though interactive login
-source /etc/profile
+source /etc/profile.d/aml_ami.sh
 
 # Change working directory to repo
 cd "${0%/*}"
