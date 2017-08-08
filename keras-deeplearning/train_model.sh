@@ -7,7 +7,7 @@ source /etc/profile.d/aml_ami.sh
 cd "${0%/*}"
 
 # Update Keras
-pip3 install keras --upgrade --no-deps
+sudo pip3 install keras --upgrade --no-deps
 
 # Check Keras Backend
 python3 -c "import keras; print(keras.backend.backend())"
