@@ -26,4 +26,7 @@ python3 train_model.py
 # Send trained model to S3
 DATE=`date -u +%FT%H_%M`
 aws s3 cp lc_model.h5 s3://um-aws-machine-learning-demo/$DATE/lc_model.h5
+aws s3 cp x_test.csv s3://um-aws-machine-learning-demo/$DATE/x_test.csv
+aws s3 cp y_test.csv s3://um-aws-machine-learning-demo/$DATE/y_test.csv
+aws s3 cp y_pred.csv s3://um-aws-machine-learning-demo/$DATE/y_pred.csv
 aws s3 cp /tmp/workload.log s3://um-aws-machine-learning-demo/$DATE/workload.log

@@ -3,3 +3,4 @@ __pycache__/
 *.h5
 *.html
 *.pyc
+lambda-deploy/

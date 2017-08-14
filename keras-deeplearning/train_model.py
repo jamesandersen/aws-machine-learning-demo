@@ -1,3 +1,5 @@
+import os
+import numpy as np
 import train_util as util
 from model_definition import create_model
 
@@ -14,8 +16,14 @@ helper.read_csv("lc-2015-loans.csv",
 helper.split_data(util.APPLICANT_NUMERIC + util.CREDIT_NUMERIC,
                   util.APPLICANT_CATEGORICAL,
                   util.LABEL,
-                  test_size=0.2)
+                  test_size=0.2,
+                  row_limit = os.environ.get("sample"))
 
 helper.train_model(create_model)
 
 helper.model.save('lc_model.h5')  # creates a HDF5 file 'lc_model.h5'
+np.savetxt('x_test.csv', helper.x_test[:300].as_matrix(), delimiter=',')
+np.savetxt('y_test.csv', helper.y_test[:300].as_matrix(), delimiter=',')
+y_pred = helper.model.predict(helper.x_test[:300].as_matrix())
+np.savetxt('y_pred.csv', y_pred, delimiter=',')
+
