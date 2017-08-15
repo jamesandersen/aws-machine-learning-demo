@@ -1,10 +1,12 @@
 import numpy as np
 import itertools
+import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 
 def plot_correlation_matrix(data):
     """Plots a correlation matrix of the data set"""
+    sns.reset_orig()
     fig = plt.figure(figsize=(15,15))
     ax = fig.add_subplot(111)
     cax = ax.matshow(data.corr(), cmap=plt.cm.Blues)
@@ -38,6 +40,7 @@ def plot_history(history):
     plt.xlabel('epoch')
     plt.legend(['train', 'valid.'], loc='upper left')
 
+    # adjust size
     plt.tight_layout()
     plt.show()
 

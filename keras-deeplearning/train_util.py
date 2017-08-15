@@ -76,12 +76,20 @@ class LendingClubModelHelper:
         # Create model using provided model function
         self.model = model_func(self.x_train.shape[1], self.y_train.shape[1])
 
+        # Model converges faster on larger data set with larger batches
+        epochs = 20 if gpu_enabled else 38
+
+        # GPU is actually *slower* than CPU when using small batch size
+        batch_sz = 1024 if gpu_enabled else 32
+
+        print("Beginning model training with batch size {} and {} epochs".format(batch_sz, epochs))
+
         # train the model
         return self.model.fit(self.x_train.as_matrix(),
                         self.y_train.as_matrix(),
                         validation_split=0.2,
-                        epochs=20 if gpu_enabled else 38, # Model converges faster on larger data set with larger batches 
-                        batch_size=1024 if gpu_enabled else 32, # GPU is actually *slower* than CPU when using small batch size
+                        epochs=epochs,  
+                        batch_size=batch_sz, 
                         verbose=2)
 
 def encode_categorical(frame, categorical_cols):

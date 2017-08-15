@@ -2,7 +2,7 @@
 
 python -m venv ~/keras-tf
 source ~/keras-tf/bin/activate
-pip install tensorflow keras
+pip install tensorflow 'keras==2.0.6'
 
 site_pkgs=$VIRTUAL_ENV/lib/python3.6/site-packages
 
