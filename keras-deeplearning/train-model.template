@@ -226,6 +226,7 @@ Resources:
                 aws configure set default.region ${AWS::Region}
                 echo "AWS CLI installed and configured" | tee /tmp/workload.log | logger
 
+                # Update Keras to 2.x
                 pip3 install keras --upgrade --no-deps
                 echo "Keras updated" | tee /tmp/workload.log | logger
 

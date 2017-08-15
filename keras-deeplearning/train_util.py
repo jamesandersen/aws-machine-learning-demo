@@ -1,7 +1,5 @@
 """Utility logic for handling data set"""
 
-import itertools
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -72,7 +70,7 @@ class LendingClubModelHelper:
         # Create train and test sets
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_df, y, test_size=test_size, random_state=23)
     
-    def train_model(self, model_func):
+    def train_model(self, model_func, gpu_enabled=False):
         """Create and train the neural network model"""
 
         # Create model using provided model function
@@ -82,8 +80,8 @@ class LendingClubModelHelper:
         return self.model.fit(self.x_train.as_matrix(),
                         self.y_train.as_matrix(),
                         validation_split=0.2,
-                        epochs=38 if not self.x_train.shape[0] == self.lcdata.shape[0] else 20, # Model converges much faster on larger data set 
-                        batch_size=32,
+                        epochs=20 if gpu_enabled else 38, # Model converges faster on larger data set with larger batches 
+                        batch_size=1024 if gpu_enabled else 32, # GPU is actually *slower* than CPU when using small batch size
                         verbose=2)
 
 def encode_categorical(frame, categorical_cols):

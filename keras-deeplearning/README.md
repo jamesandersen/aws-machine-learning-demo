@@ -10,8 +10,7 @@ docker run -d -p=6006:6006 -p 8888:8888 \
 
 Run an image to build lambda deploy package
 ```
-docker run -it -v `pwd`/lambda-deploy:/home/lambda-deploy lambci/lambda:build-python3.6 bash
-                
+docker run -it -v `pwd`:/tmp/deploy/ lambci/lambda:build-python3.6 bash /tmp/deploy/build-lambda-pkg.sh
 ```
 
 References:

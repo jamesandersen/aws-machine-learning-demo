@@ -1,3 +1,5 @@
+"""Trains neural net for Lending Club dataset and saves the results"""
+
 import os
 import numpy as np
 import train_util as util
@@ -19,11 +21,11 @@ helper.split_data(util.APPLICANT_NUMERIC + util.CREDIT_NUMERIC,
                   test_size=0.2,
                   row_limit = os.environ.get("sample"))
 
-helper.train_model(create_model)
+helper.train_model(create_model, True)
 
 helper.model.save('lc_model.h5')  # creates a HDF5 file 'lc_model.h5'
-np.savetxt('x_test.csv', helper.x_test[:300].as_matrix(), delimiter=',')
-np.savetxt('y_test.csv', helper.y_test[:300].as_matrix(), delimiter=',')
-y_pred = helper.model.predict(helper.x_test[:300].as_matrix())
+np.savetxt('x_test.csv', helper.x_test[:100].as_matrix(), delimiter=',')
+np.savetxt('y_test.csv', helper.y_test[:100].as_matrix(), delimiter=',')
+y_pred = helper.model.predict(helper.x_test[:100].as_matrix())
 np.savetxt('y_pred.csv', y_pred, delimiter=',')
 

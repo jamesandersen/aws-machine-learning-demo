@@ -1,6 +1,13 @@
+"""AWS Lambda Handler for making loan grade predictions"""
 
+import os
 import numpy as np
 from keras.models import load_model
+
+# Silence warnings about TF CPP compilation flags e.g.
+# "The TensorFlow library wasn't compiled to use SSE4.1 instructions, but
+# these are available on your machine and could speed up CPU computations."
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 x_test = np.genfromtxt("x_test.csv", delimiter=",")
 loan_grade_model = load_model('lc_model.h5')
