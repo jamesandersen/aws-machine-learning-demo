@@ -5,7 +5,7 @@ aws cloudformation validate-template --template-body file://train-model.template
 #: <<'END'
 aws cloudformation create-stack --stack-name deep-learning-spot --template-body file://train-model.template \
     --parameters ParameterKey=InstanceType,ParameterValue=p2.xlarge \
-        ParameterKey=SpotBidPrice,ParameterValue=0.75 \
+        ParameterKey=SpotBidPrice,ParameterValue=0.50 \
         ParameterKey=KeyPairName,ParameterValue=UMOregon \
         ParameterKey=SourceCidr,ParameterValue=96.60.192.215/32 \
         ParameterKey=GitRepo,ParameterValue=https://github.com/jamesandersen/aws-machine-learning-demo.git \

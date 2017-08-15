@@ -3,4 +3,7 @@ __pycache__/
 *.h5
 *.html
 *.pyc
-lambda-deploy/
+*.zip
+*.csv
+*.h5
+train-model/output

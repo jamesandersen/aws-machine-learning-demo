@@ -1,7 +1,14 @@
 """Trains neural net for Lending Club dataset and saves the results"""
 
 import os
+
+# Silence warnings about TF CPP compilation flags e.g.
+# "The TensorFlow library wasn't compiled to use SSE4.1 instructions, but
+# these are available on your machine and could speed up CPU computations."
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
 import numpy as np
+from keras import backend as K
 import train_util as util
 from model_definition import create_model
 
@@ -23,9 +30,13 @@ helper.split_data(util.APPLICANT_NUMERIC + util.CREDIT_NUMERIC,
 
 helper.train_model(create_model, True)
 
-helper.model.save('lc_model.h5')  # creates a HDF5 file 'lc_model.h5'
-np.savetxt('x_test.csv', helper.x_test[:100].as_matrix(), delimiter=',')
-np.savetxt('y_test.csv', helper.y_test[:100].as_matrix(), delimiter=',')
+output = 'output/'
+if not os.path.exists(output):
+    os.makedirs(output)
+helper.model.save("{}lc_model.h5".format(output))  # creates a HDF5 file 'lc_model.h5'
+np.savetxt("{}x_test.csv".format(output), helper.x_test[:100].as_matrix(), delimiter=',')
+np.savetxt("{}y_test.csv".format(output), helper.y_test[:100].as_matrix(), delimiter=',')
 y_pred = helper.model.predict(helper.x_test[:100].as_matrix())
-np.savetxt('y_pred.csv', y_pred, delimiter=',')
+np.savetxt("{}y_pred.csv".format(output), y_pred, delimiter=',')
 
+K.clear_session() # https://github.com/tensorflow/tensorflow/issues/3388
