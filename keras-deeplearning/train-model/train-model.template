@@ -296,8 +296,6 @@ Resources:
                 # TODO: Any broadcast notifications needed here e.g. SQS, SNS, Lambda invocation
                 # Would need to update the instance role accordingly of course
 
-                # Clean-up
-                cancel-spot-fleet-requests --spot-fleet-request-ids ${SpotFleet} --terminate-instances
                 EOF
 
                 # we're now going to hand off to ec2-user, so allow access to certain files
@@ -307,17 +305,6 @@ Resources:
 
                 exec su -ls /bin/sh -c 'exec "$0" "$@" 2>&1 | tee /tmp/workload.log | logger' ec2-user -- /bin/bash /home/ec2-user/workload.sh
 
-  CancelFleetRequestPolicy:
-    Type: "AWS::IAM::Policy"
-    Properties: 
-      PolicyDocument:
-        Statement:
-        - Action: ec2:CancelSpotFleetRequests
-          Effect: Allow
-          Resource: !Ref SpotFleet
-        Version: 2012-10-17
-      PolicyName: CancelRequestPolicy
-      Roles: [!Ref SpotInstanceRole]
 Outputs:
   AwsRegionName:
     Description: The name of the AWS Region your template was launched in
