@@ -294,8 +294,6 @@ Resources:
                 # Use /bin/bash instead of source so the script can use relative paths to its repo location
                 /bin/bash /tmp/repo/${RunScript}
 
-                logger "Beginning termination of Spot instance in Stack ${AWS::StackId}"
-
                 # TODO: Any broadcast notifications needed here e.g. SQS, SNS, Lambda invocation
                 # Would need to update the instance role accordingly of course
 
