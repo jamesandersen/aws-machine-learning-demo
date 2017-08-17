@@ -224,7 +224,7 @@ Resources:
                 echo "AWS CLI installed and configured" | tee /tmp/workload.log | logger
 
                 # Update Keras to 2.x
-                pip3 install keras --upgrade --no-deps
+                pip3 -q install 'keras==2.0.6' --force-reinstall
                 echo "Keras updated" | tee /tmp/workload.log | logger
 
                 cat <<EOF > /tmp/awslogs.conf

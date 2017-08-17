@@ -4,12 +4,15 @@
 cd "${0%/*}"
 
 # Check Keras Backend
-pip3 -q install 'keras==2.0.6' --force-reinstall
+# pip3 -q install 'keras==2.0.6' --force-reinstall
 python3 -c "import keras; print(keras.backend.backend())"
 logger "Keras appears to be working!"
 
+# Fetch raw data
+aws s3 cp s3://um-aws-machine-learning-demo/LoanStats3d_securev1.csv.zip .
+
 # extract raw data
-unzip -o ../../LoanStats3d_securev1.csv.zip -d .
+unzip -o LoanStats3d_securev1.csv.zip -d .
 
 # generate cleaned data file for model training
 python3 ../../lending_club_clean.py `pwd`/lc-2015-loans.csv
