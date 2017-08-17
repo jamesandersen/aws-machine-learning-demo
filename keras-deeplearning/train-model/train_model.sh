@@ -8,6 +8,11 @@ cd "${0%/*}"
 python3 -c "import keras; print(keras.backend.backend())"
 logger "Keras appears to be working!"
 
+# Force matplotlib into headless mode
+cat <<EOF > matplotlibrc
+backend : agg
+EOF
+
 # Fetch raw data
 aws s3 cp s3://um-aws-machine-learning-demo/LoanStats3d_securev1.csv.zip .
 
