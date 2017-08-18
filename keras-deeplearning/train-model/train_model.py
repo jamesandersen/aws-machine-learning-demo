@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from keras import backend as K
 import train_util as util
+import plot_util as plots
 from model_definition import create_model
 
 helper = util.LendingClubModelHelper()
@@ -29,7 +30,7 @@ helper.split_data(util.APPLICANT_NUMERIC + util.CREDIT_NUMERIC,
                   test_size=0.2,
                   row_limit = os.environ.get("sample"))
 
-helper.train_model(create_model, True)
+history = helper.train_model(create_model, True)
 
 output = 'output/'
 if not os.path.exists(output):
@@ -39,6 +40,7 @@ np.savetxt("{}x_test.csv".format(output), helper.x_test[:100].as_matrix(), delim
 np.savetxt("{}y_test.csv".format(output), helper.y_test[:100].as_matrix(), delimiter=',')
 y_pred = helper.model.predict(helper.x_test[:100].as_matrix())
 np.savetxt("{}y_pred.csv".format(output), y_pred, delimiter=',')
+plots.plot_history(history, "{}accuracy_loss.png".format(output))
 
 # Save confusion matrix
 import seaborn as sns

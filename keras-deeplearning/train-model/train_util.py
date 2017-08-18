@@ -32,6 +32,10 @@ class LendingClubModelHelper:
         # ...skip the columns we're not going to use to preserve memory
         self.lcdata = pd.read_csv(filename, usecols=columns)
 
+        # Set an ordering on our grade category so order of grades doesn't appear randome in graphs
+        grade_categories = [g for g in "ABCDEFG"]
+        self.lcdata["grade"] = self.lcdata["grade"].astype("category", categories=grade_categories, ordered=True)
+
         # Sanity check that we're working with cleaned data
         bad_rows = self.lcdata.isnull().T.any().T.sum()
         if bad_rows > 0:
@@ -77,10 +81,10 @@ class LendingClubModelHelper:
         self.model = model_func(self.x_train.shape[1], self.y_train.shape[1])
 
         # Model converges faster on larger data set with larger batches
-        epochs = 20 if gpu_enabled else 38
+        epochs = 30 if gpu_enabled else 45
 
         # GPU is actually *slower* than CPU when using small batch size
-        batch_sz = 1024 if gpu_enabled else 32
+        batch_sz = 1024 if gpu_enabled else 64
 
         print("Beginning model training with batch size {} and {} epochs".format(batch_sz, epochs))
 

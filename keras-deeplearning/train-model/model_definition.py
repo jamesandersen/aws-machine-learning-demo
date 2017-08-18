@@ -7,6 +7,7 @@ from keras.constraints import maxnorm
 def create_model(input_dim, output_dim):
     # create model
     model = Sequential()
+    
     # input layer
     model.add(Dense(100, input_dim=input_dim, activation='relu', kernel_constraint=maxnorm(3)))
     model.add(Dropout(0.2))

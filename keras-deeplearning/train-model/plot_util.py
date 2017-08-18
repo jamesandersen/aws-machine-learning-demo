@@ -19,8 +19,17 @@ def plot_correlation_matrix(data):
 
     plt.show()
 
-def plot_history(history):
+def plot_history(history, save_file = None):
     """Plost accuracy and loss for a Keras history object"""
+
+    plt.rcParams["figure.figsize"] = [16, 5]
+    plt.rcParams["axes.titlesize"] = 18
+    plt.rcParams["axes.labelsize"] = 16
+    plt.rcParams["xtick.labelsize"] = 12
+    plt.rcParams["ytick.labelsize"] = 12
+    plt.rcParams['legend.loc'] = 'upper right'
+    plt.rcParams['legend.framealpha'] = 0.7
+    plt.rcParams["legend.fontsize"] = 14
 
     # Plot accuracy
     plt.subplot(1, 2, 1)
@@ -42,7 +51,11 @@ def plot_history(history):
 
     # adjust size
     plt.tight_layout()
-    plt.show()
+    if save_file is None:
+        plt.show()
+    else:
+        plt.savefig(save_file)
+
 
 def plot_confusion_matrix(conf_matrix, classes,
                           title='Confusion matrix',
