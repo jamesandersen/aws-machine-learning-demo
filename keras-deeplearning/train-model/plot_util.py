@@ -55,6 +55,7 @@ def plot_history(history, save_file = None):
         plt.show()
     else:
         plt.savefig(save_file)
+        plt.close()
 
 
 def plot_confusion_matrix(conf_matrix, classes,
