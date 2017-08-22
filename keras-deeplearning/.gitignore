@@ -7,3 +7,5 @@ __pycache__/
 *.csv
 *.h5
 train-model/output
+deploy-model/pkg
+deploy-model/packaged-lambda.template

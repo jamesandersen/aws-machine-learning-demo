@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: API Gateway and Lambda to test deployed Loan Grade prediction model
+Parameters:
+  ModelBucket:
+    Type: String
+    Default: um-aws-machine-learning-demo
+    Description: The bucket where model resides
+  ModelKey:
+    Type: String
+    Default: lc_model_local.h5
+    Description: The key within ModelBucket where the model is found
+Resources:
+  LoanGradePredictFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: LoanGradePrediction
+      Handler: handler.sample_predict
+      Runtime: python3.6
+      CodeUri: ./pkg
+      MemorySize: 256
+      Timeout: 180 # Long warm-up time
+      Policies:
+      - Version: 2012-10-17
+        Statement:
+          Effect: Allow
+          Action:
+            - s3:ListBucket
+            - s3:GetObject
+          Resource: !Sub "arn:aws:s3:::${ModelBucket}/*"
+      Environment:
+        Variables:
+          bucket: !Ref ModelBucket
+          modelkey: !Ref ModelKey
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /predict/loan-grade
+            Method: post
+  LoanGradeMicroservice:
+    Type: AWS::Serverless::Api
+    Properties:
+        StageName: test
+        DefinitionBody:
+            swagger: 2.0
+            info:
+              title:
+                Ref: AWS::StackName
+            paths:
+              "/predict/loan-grade":
+                post:
+                  x-amazon-apigateway-integration:
+                    httpMethod: POST
+                    type: aws_proxy
+                    uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LoanGradePredictFunction.Arn}/invocations
+                  responses: {}

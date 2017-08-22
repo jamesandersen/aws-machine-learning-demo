@@ -12,7 +12,7 @@ CREDIT_NUMERIC = ['acc_now_delinq', 'acc_open_past_24mths', 'avg_cur_bal', 'bc_o
                   'num_accts_ever_120_pd', 'num_actv_bc_tl', 'num_actv_rev_tl', 'num_bc_sats',
                   'num_bc_tl', 'num_il_tl', 'num_rev_tl_bal_gt_0', 'pct_tl_nvr_dlq',
                   'percent_bc_gt_75', 'tot_hi_cred_lim', 'total_bal_ex_mort', 'total_bc_limit',
-                  'total_il_high_credit_limit', 'total_rev_hi_lim', 'all_util', 'loan_to_income',
+                  'total_il_high_credit_limit', 'all_util', 'loan_to_income',
                   'installment_pct_inc', 'il_util', 'il_util_ex_mort', 'total_bal_il', 'total_cu_tl']
 LABEL = ['grade']
 
