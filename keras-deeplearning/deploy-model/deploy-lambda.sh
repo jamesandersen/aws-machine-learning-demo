@@ -4,14 +4,13 @@ rm -rdf pkg/
 
 mkdir pkg/
 
-unzip keras-tf-py36-pkg.zip -d pkg/
+#unzip keras-tf-py36-pkg.zip -d pkg/
+unzip keras-tf-runtime.zip -d pkg/
 
 cp handler.py pkg/
 
-#zip -r -9 lc-predict-pkg.zip pkg/
-
 #rm -rdf pkg
-
+#: <<'END'
 aws cloudformation package \
     --template-file lambda.template \
     --s3-bucket um-aws-machine-learning-demo \
@@ -23,7 +22,7 @@ aws cloudformation deploy \
     --stack-name lambda-lending-club-predictions \
     --capabilities CAPABILITY_IAM \
     --profile um --region us-west-1
-
+#END
 
 # Test with:
 # curl -H "Content-Type: application/json" --data @test.json http://localhost:8080/ui/webapp/conf

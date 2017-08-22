@@ -13,10 +13,10 @@ Test out the deployment package locally
 
 ```
 docker run -v `pwd`/pkg:/var/task \
-     -e "bucket=um-aws-machine-learning-demo" \
-     -e "modelkey=2017-08-18T20_33/lc_model.h5" \
-     lambci/lambda:python3.6 \
-     handler.sample_predict \
-     "`cat test.json`"
+    -e "bucket=um-aws-machine-learning-demo" \
+    -e "modelkey=2017-08-18T20_33/lc_model.h5" \
+    -e "AWS_ACCESS_KEY_ID=<YOUR_KEY_ID>" \
+    -e "AWS_SECRET_ACCESS_KEY=<YOUR_ACCESS_KEY>" \
+    lambci/lambda:python3.6 handler.sample_predict "`cat test-request.json`"
 
 ```

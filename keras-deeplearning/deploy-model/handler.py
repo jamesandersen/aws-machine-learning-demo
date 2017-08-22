@@ -9,6 +9,7 @@ import botocore
 # these are available on your machine and could speed up CPU computations."
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
+import json
 import numpy as np
 from keras.models import load_model
 from keras import backend as K
@@ -52,13 +53,18 @@ idx_to_grade = lambda x: "ABCDEFG"[x]
 
 def sample_predict(event, context):
     print(event['requestContext'])
-    x = np.matrix([list(each.values()) for each in event['body']])
+    body = json.loads(event['body'])
+    x = np.matrix([list(each.values()) for each in body])
     print(x.shape)
     pred = loan_grade_model.predict(x)
     max_indices = np.argmax(pred, axis=1)
     print(max_indices)
     grades = [idx_to_grade(x) for x in max_indices]
-    return grades
+    response = {}
+    response['statusCode'] = 200
+    response['headers'] = { "X-tensorflow-prediction": "True" }
+    response['body'] = json.dumps(grades)
+    return response
 
 if __name__ == "__main__":
     sample_context = { "function_name": "CLI Test" }
