@@ -8,6 +8,8 @@ site_pkgs=$VIRTUAL_ENV/lib/python3.6/site-packages
 
 # check entire directory size
 du -sh $site_pkgs
+
+# strip C libraries
 find $site_pkgs -name "*.so" | xargs strip
 
 # Remove tests
@@ -15,7 +17,7 @@ find $site_pkgs -wholename "*/tests/*" -exec rm -rdf {} +
 find $site_pkgs -name "unittest*" -exec rm {} +
 
 # Should come after the strip *.so command
-# and removal of tests above to avoid errors
+# and removal of tests above to avoid errors - these C libs are not "strippable"
 pip install h5py
 
 # Remove info directories
@@ -25,7 +27,7 @@ find $site_pkgs -name "*-info" -type d -exec rm -rdf {} +
 find $site_pkgs -name "*.js" -exec rm -rdf {} +
 find $site_pkgs -name "*.html" -exec rm -rdf {} +
 
-# Remove *.h files, for runtime only; we won't be linking via header files
+# Remove *.h files; for runtime we won't be linking via header files
 find $site_pkgs -name "*.h" -exec rm -rdf {} +
 
 # Remove python environment tools not needed at runtime
@@ -71,13 +73,14 @@ declare -a arr=("keras" "numpy" "yaml")
 ## now loop through the above array
 for mod in "${arr[@]}"
 do
-   # Leave keras precompiled...
+   # Leave module precompiles for faster Lambda startup
     find $site_pkgs/$mod -name '*.pyc' | while read line; do
         dest="${line//.cpython-36/}"
         dest="${dest//\/__pycache__}"
         mv $line $dest
     done
 
+    # Remove the module's source files
     find $site_pkgs -wholename "*/$mod/*.py" -exec rm {} +
 done
 

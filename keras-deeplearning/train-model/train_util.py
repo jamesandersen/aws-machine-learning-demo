@@ -73,6 +73,7 @@ class LendingClubModelHelper:
 
         # Create train and test sets
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_df, y, test_size=test_size, random_state=23)
+        print("x_train contains {} rows and {} features".format(self.x_train.shape[0], self.x_train.shape[1]))
     
     def train_model(self, model_func, gpu_enabled=False):
         """Create and train the neural network model"""
