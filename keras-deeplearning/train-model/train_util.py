@@ -2,6 +2,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from keras.models import load_model
+from keras.callbacks import ModelCheckpoint
 
 APPLICANT_NUMERIC = ['annual_inc', 'dti', 'age_earliest_cr', 'loan_amnt', 'installment']
 APPLICANT_CATEGORICAL = ['application_type', 'emp_length', 'home_ownership', 'addr_state', 'term']
@@ -92,13 +94,19 @@ class LendingClubModelHelper:
 
         print("Beginning model training with batch size {} and {} epochs".format(batch_sz, epochs))
 
+        checkpoint = ModelCheckpoint("lc_model.h5", monitor='val_acc', verbose=0, save_best_only=True, mode='auto', period=1)
         # train the model
-        return self.model.fit(self.x_train.as_matrix(),
+        history = self.model.fit(self.x_train.as_matrix(),
                         self.y_train.as_matrix(),
                         validation_split=0.2,
                         epochs=epochs,  
                         batch_size=batch_sz, 
-                        verbose=2)
+                        verbose=2,
+                        callbacks=[checkpoint])
+
+        # revert to the best model encountered during training
+        self.model = load_model("lc_model.h5")
+        return history
 
 def encode_categorical(frame, categorical_cols):
     """Replace categorical variables with one-hot encoding in-place"""

@@ -25,4 +25,4 @@ aws cloudformation deploy \
 #END
 
 # Test with:
-# curl -H "Content-Type: application/json" --data @test.json http://localhost:8080/ui/webapp/conf
+# curl -H "Content-Type: application/json" --data @test.json https://<your-api-gateway-id>.execute-api.us-west-1.amazonaws.com/Stage/predict/loan-grade
