@@ -20,6 +20,7 @@ MODEL_KEY = os.environ["modelkey"]
 s3 = boto3.resource('s3')
 loan_grade_model = None
 
+# One-time per lambda instance, load the model from S3
 try:
     s3.Bucket(BUCKET_NAME).download_file(MODEL_KEY, '/tmp/model.h5')
     print("Model downloaded from s3://{}/{}".format(BUCKET_NAME, MODEL_KEY))
@@ -31,31 +32,13 @@ except botocore.exceptions.ClientError as e:
     else:
         raise
 
-#x_test = np.genfromtxt("x_test.csv", delimiter=",")
-#loan_grade_model = load_model('lc_model_local.h5')
-#y_pred = np.genfromtxt("y_pred.csv", delimiter=",")
-
-#print("Making sample prediction using {} rows and {} columns".format(x_test.shape[0], x_test.shape[1]))
-#pred = loan_grade_model.predict(x_test)
-
-#if np.allclose(y_pred, pred):
-#    print("Model recreated and results validated with previous predictions")
-#else:
-#    print("Model recreated but predictions are inconsistent with previous run")
-#    print("Saved Pred\t\tCurrent Pred")
-#    for i in range(10):
-#        print("{}\t\t{}".format(y_pred[i:i], pred[i:i]))
-
-
-
-
 idx_to_grade = lambda x: "ABCDEFG"[x]
 
 def sample_predict(event, context):
-    print(event['requestContext'])
+    #print(event['requestContext'])
     body = json.loads(event['body'])
     x = np.matrix([list(each.values()) for each in body])
-    print(x.shape)
+    print("Received loan input data with shape {}".format(x.shape))
     pred = loan_grade_model.predict(x)
     max_indices = np.argmax(pred, axis=1)
     print(max_indices)
@@ -65,10 +48,3 @@ def sample_predict(event, context):
     response['headers'] = { "X-tensorflow-prediction": "True" }
     response['body'] = json.dumps(grades)
     return response
-
-if __name__ == "__main__":
-    sample_context = { "function_name": "CLI Test" }
-    sample_event = { "foo": "bar"}
-    grades = sample_predict(sample_context, sample_event)
-    print(grades)
-    K.clear_session() # https://github.com/tensorflow/tensorflow/issues/3388

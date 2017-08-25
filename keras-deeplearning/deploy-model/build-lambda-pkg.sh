@@ -35,11 +35,14 @@ rm -rdf $site_pkgs/pip/
 rm -rdf $site_pkgs/setuptools/
 rm -rdf $site_pkgs/wheel/
 rm -rdf $site_pkgs/pkg_resources/
+rm $site_pkgs/easy_install.py
+
 
 # Remove unused TensorFlow dependencies
 rm -rdf $site_pkgs/external/
 rm -rdf $site_pkgs/tensorflow/include/external/eigen_archive/
 rm -rdf $site_pkgs/tensorflow/include/Eigen/src/
+rm $site_pkgs/protobuf-3.4.0-py3.6-nspkg.pth
 
 rm -rdf $site_pkgs/tensorflow/debug/
 rm -rdf $site_pkgs/tensorflow/examples/
@@ -68,7 +71,7 @@ rm $site_pkgs/keras/backend/cntk_backend.py
 python -c 'import keras'
 
 ## declare an array variable
-declare -a arr=("keras" "numpy" "yaml")
+declare -a arr=("keras" "numpy" "yaml"  "google" "h5py")
 
 ## now loop through the above array
 for mod in "${arr[@]}"
@@ -81,12 +84,12 @@ do
     done
 
     # Remove the module's source files
-    find $site_pkgs -wholename "*/$mod/*.py" -exec rm {} +
+    find $site_pkgs/$mod -name "*.py" -exec rm {} +
 done
 
 # Remove cached files
-find $site_pkgs -wholename "*/google/*/__pycache__" -exec rm -rdf {} +
-find $site_pkgs -wholename "*/h5py/*/__pycache__" -exec rm -rdf {} +
+#find $site_pkgs -wholename "*/google/*/__pycache__" -exec rm -rdf {} +
+#find $site_pkgs -wholename "*/h5py/*/__pycache__" -exec rm -rdf {} +
 
 du -sh $site_pkgs
 cd $site_pkgs
