@@ -1,5 +1,5 @@
 """Utility logic for handling data set"""
-
+import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
@@ -49,17 +49,8 @@ class LendingClubModelHelper:
     def split_data(self, continuous_cols, categorical_cols, label_col, test_size=0.2, row_limit=None):
         """Divide the data in to X and y dataframes and train/test split"""
 
-        # When requested, limit the amount of data that will be used
-        # Using entire data set can be painfully slow without a GPU!
-        if row_limit != None:
-            print("Using only a sample of {} observations".format(row_limit))
-            data = self.lcdata.sample(int(row_limit))
-        else:
-            print("Using the full set of {} observations".format(self.lcdata.shape[0]))
-            data = self.lcdata
-
         # Subset to get feature data
-        x_df = data.loc[:, continuous_cols + categorical_cols]
+        x_df = self.lcdata.loc[:, continuous_cols + categorical_cols]
 
         # Update our X dataframe with categorical values replaced by one-hot encoded values
         x_df = encode_categorical(x_df, categorical_cols)
@@ -69,7 +60,19 @@ class LendingClubModelHelper:
             x_df[col] = (x_df[col] - x_df[col].mean()) / x_df[col].std()
 
         # Specify the target labels and flatten the array
-        y = pd.get_dummies(data[label_col])
+        y = pd.get_dummies(self.lcdata[label_col])
+
+        # When requested, limit the amount of data that will be used
+        # Using entire data set can be painfully slow without a GPU!
+        if row_limit != None:
+            rows = np.random.binomial(1, 0.1, size=len(self.lcdata)).astype('bool')
+            x_df = x_df[rows]
+            y = y[rows]
+            print("Using only a sample of {} observations".format(x_df.shape[0]))
+            #data = self.lcdata.sample(int(row_limit))
+        else:
+            print("Using the full set of {} observations".format(self.lcdata.shape[0]))
+            #data = self.lcdata
 
         # Create train and test sets
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(x_df, y, test_size=test_size, random_state=23)
