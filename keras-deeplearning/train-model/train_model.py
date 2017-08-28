@@ -56,9 +56,6 @@ f1 = f1_score(y_test_vals, y_pred_vals, average='weighted')
 print("Test Set Accuracy: {:.00%}".format(f1))
 
 cfn_matrix = confusion_matrix(y_test_vals, y_pred_vals)
-cfn_frame = pd.DataFrame(cfn_matrix, index=helper.y_test.columns, columns=helper.y_test.columns)
-hm = sns.heatmap(cfn_frame, square=True, cmap=sns.color_palette("Blues", 30), annot=cfn_matrix, fmt='g')
-figure = hm.get_figure()    
-figure.savefig("{}confusion_matrix.png".format(output), dpi=400)
+plots.plot_confusion_matrix(cfn_matrix, [l for l in "ABCDEFG"], "{}confusion_matrix.png".format(output))
 
 K.clear_session() # https://github.com/tensorflow/tensorflow/issues/3388
