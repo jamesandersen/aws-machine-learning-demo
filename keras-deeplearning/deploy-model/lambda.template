@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "API Gateway and Lambda to test deployed Loan Grade prediction model"
+
+Parameters:
+  ModelKey:
+    Default: "2017-08-25T19_11/lc_model.h5"
+    Type: "String"
+    Description: "The key within ModelBucket where the model is found"
+  ModelBucket:
+    Default: "um-aws-machine-learning-demo"
+    Type: "String"
+    Description: "The bucket where model resides"
+   
+Resources:
+  LoanGradePredictFunction:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: "LoanGradePrediction"
+      Code:
+        S3Bucket: um-aws-machine-learning-demo
+        S3Key: 54e3c1ad830cff065213b28327b1aa8a
+      Tags:
+      - Key: project
+        Value: um-lending-club
+      MemorySize: 1024
+      Environment:
+        Variables:
+          modelkey: !Ref ModelKey
+          bucket: !Ref ModelBucket
+      Handler: "handler.sample_predict"
+      Role: !GetAtt "LoanGradePredictFunctionRole.Arn"
+      Timeout: 180
+      Runtime: "python3.6"
+  LoanGradeMicroservice:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Body:
+          swagger: 2.0
+          info:
+            title: !Ref "AWS::StackName"
+          paths:
+            /predict/loan-grade:
+                post:
+                  x-amazon-apigateway-integration:
+                    httpMethod: "POST"
+                    type: "aws_proxy"
+                    uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${LoanGradePredictFunction.Arn}/invocations"
+  ServerlessRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref LoanGradeMicroservice
+      Description: "RestApi deployment id: b45e4db117064dfa475aa56dcfaac53dbfacbdad"
+      StageName: test
+  LoanGradePredictFunctionGetResourcePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:invokeFunction"
+      Principal: "apigateway.amazonaws.com"
+      FunctionName: !Ref LoanGradePredictFunction
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${LoanGradeMicroservice}/test/POST/predict/loan-grade"
+  LoanGradePredictFunctionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      ManagedPolicyArns: [ "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole" ]
+      Policies:
+        - PolicyName: "LoanGradePredictFunctionRolePolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Action: ["s3:ListBucket", "s3:GetObject"]
+              Resource: !Sub "arn:aws:s3:::${ModelBucket}/*"
+              Effect: "Allow"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: ["sts:AssumeRole"]
+            Effect: "Allow"
+            Principal:
+              Service: ["lambda.amazonaws.com"]
+Outputs:
+  LoanPredictApiUrl:
+    Export:
+      Name: "LoanPredictAPIUrl"
+    Description: "API endpoint URL"
+    Value: !Sub "https://${LoanGradeMicroservice}.execute-api.${AWS::Region}.amazonaws.com/test"

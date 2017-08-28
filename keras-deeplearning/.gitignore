@@ -1,0 +1,11 @@
+.ipynb_checkpoints/
+__pycache__/
+*.h5
+*.html
+*.pyc
+*.zip
+*.csv
+*.h5
+train-model/output
+deploy-model/pkg
+deploy-model/packaged-lambda.template
