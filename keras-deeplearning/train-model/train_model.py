@@ -53,7 +53,7 @@ y_pred_classes = pd.DataFrame((y_pred.argmax(1)[:,None] == np.arange(y_pred.shap
 y_test_vals = helper.y_test.idxmax(1)
 y_pred_vals = y_pred_classes.idxmax(1)
 f1 = f1_score(y_test_vals, y_pred_vals, average='weighted')
-print("Test Set Accuracy: {:.00%}".format(f1))
+print("Test Set Accuracy: {:.2%}".format(f1))
 
 cfn_matrix = confusion_matrix(y_test_vals, y_pred_vals)
 plots.plot_confusion_matrix(cfn_matrix, [l for l in "ABCDEFG"], "{}confusion_matrix.png".format(output))
