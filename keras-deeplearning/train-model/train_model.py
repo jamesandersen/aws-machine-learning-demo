@@ -56,6 +56,7 @@ f1 = f1_score(y_test_vals, y_pred_vals, average='weighted')
 print("Test Set Accuracy: {:.2%}".format(f1))
 
 cfn_matrix = confusion_matrix(y_test_vals, y_pred_vals)
-plots.plot_confusion_matrix(cfn_matrix, [l for l in "ABCDEFG"], "{}confusion_matrix.png".format(output))
+plots.plot_confusion_matrix(cfn_matrix.astype(float), [l for l in "ABCDEFG"], save_file="{}confusion_matrix.png".format(output))
+
 
 K.clear_session() # https://github.com/tensorflow/tensorflow/issues/3388
