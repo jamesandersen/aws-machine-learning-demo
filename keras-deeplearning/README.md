@@ -1,22 +1,14 @@
 
-Run keras and jupyter via docker and data and notebook directories:
-```
-docker run -d -p 8888:8888 -v `pwd`/:/srv -e "sample=50000" gw000/keras-full:latest
-```
+# Machine Learning Pipeline on AWS
+This part of the repo is focused on using [Keras](https://keras.io/) (with [Tensorflow](https://www.tensorflow.org/) backend) and AWS Lambda to build a custom machine learning pipeline.
 
-Run an image to build lambda deploy package
-```
-docker run -it -v `pwd`:/tmp/deploy/ lambci/lambda:build-python3.6 bash /tmp/deploy/build-lambda-pkg.sh
-```
+![AWS Machine Learning Pipeline](images/ML_Creation_Deployment.png)
 
-Test out the deployment package locally
+See the following for additional detail:
+* [Building and Training a Model](train-model/model-creation.md)
+* [Deploying a Model](deploy-model/model-deployment.md)
 
-```
-docker run -v `pwd`/pkg:/var/task \
-    -e "bucket=um-aws-machine-learning-demo" \
-    -e "modelkey=2017-08-18T20_33/lc_model.h5" \
-    -e "AWS_ACCESS_KEY_ID=<YOUR_KEY_ID>" \
-    -e "AWS_SECRET_ACCESS_KEY=<YOUR_ACCESS_KEY>" \
-    lambci/lambda:python3.6 handler.sample_predict "`cat test-request.json`"
 
-```
+Also checkout these great resources on Keras:
+* [Keras Tutorial: Deep Learning in Python](https://www.datacamp.com/community/tutorials/deep-learning-python#gs.iIbKfbo)
+* [Multi-Class Classification Tutorial with the Keras Deep Learning Library](https://machinelearningmastery.com/multi-class-classification-tutorial-keras-deep-learning-library/)
