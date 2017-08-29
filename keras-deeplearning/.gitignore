@@ -4,6 +4,7 @@ __pycache__/
 *.html
 *.pyc
 *.zip
+!lc-2015-loans.zip
 *.csv
 *.h5
 train-model/output
