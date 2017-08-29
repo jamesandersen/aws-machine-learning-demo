@@ -18,3 +18,6 @@ Once we feel like we have a suitable model structure that is behaving well on ou
    * The script should save any outputs, including the trained model, to the S3 bucket for persistence
 
 Review [`train-model.template`](train-model.template) for full details.
+
+We end up with a much more accurate model relative to that created with the AWS Machine Learning service.
+![Confusion Matrix Comparison](images/neural_net_confusion_matrix.png)
