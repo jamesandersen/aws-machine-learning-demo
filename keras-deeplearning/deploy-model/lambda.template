@@ -3,13 +3,17 @@ Description: "API Gateway and Lambda to test deployed Loan Grade prediction mode
 
 Parameters:
   ModelKey:
-    Default: "2017-08-25T19_11/lc_model.h5"
+    Default: "2017-08-28T19_52/lc_model.h5"
     Type: "String"
     Description: "The key within ModelBucket where the model is found"
   ModelBucket:
     Default: "um-aws-machine-learning-demo"
     Type: "String"
     Description: "The bucket where model resides"
+  PackageKey:
+    Default: "lamda-lc-predict-pkg.zip"
+    Type: "String"
+    Description: "The key containing the deployment package"
    
 Resources:
   LoanGradePredictFunction:

@@ -9,6 +9,6 @@ We’re going to use some [publicly available loan applicant data](https://www.l
 4. [Gotchas and Limitations](Gotchas-Limitations.md)
 
 
-
-
+# Custom AWS Machine Learning Pipeline
+This repo also outlines how to create and deploy a **custom** machine learning pipeline using [Keras](https://keras.io/) (with [Tensorflow](https://www.tensorflow.org/) backend) and [AWS Lambda](https://aws.amazon.com/lambda/).   It uses the same loan dataset.  See [the Machine Learning Pipeline README](keras-deeplearning/README.md) for more details.
 
