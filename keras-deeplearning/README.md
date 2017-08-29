@@ -5,8 +5,8 @@ This part of the repo is focused on using [Keras](https://keras.io/) (with [Tens
 ![AWS Machine Learning Pipeline](images/ML_Creation_Deployment.png)
 
 See the following for additional detail:
-* [Building and Training a Model][train-model/model-creation.md]
-* [Deploying a Model][deploy-model/model-deployment.md]
+* [Building and Training a Model](train-model/model-creation.md)
+* [Deploying a Model](deploy-model/model-deployment.md)
 
 
 Also checkout these great resources on Keras:
